@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .failureUrl("/login?error=true")
-                .defaultSuccessUrl("/products", false)
+                .defaultSuccessUrl("/", false)
                 .permitAll()
             )
             .requestCache(cache -> cache

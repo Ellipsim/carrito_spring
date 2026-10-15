@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.carrito.models.Product;
 import com.carrito.services.ProductService;
@@ -25,13 +26,40 @@ public class ProductController {
 	}
 	
 	@GetMapping
-	public String listProducts(Model model) {
-		
-		List<Product> products = productService.getAllProducts();
-		
-		model.addAttribute("productList", products);
-		
-		return "productos";
+	public String listProducts(
+	        @RequestParam(required = false) String name,
+	        @RequestParam(required = false) Double minPrice,
+	        @RequestParam(required = false) Double maxPrice,
+	        Model model) {
+
+	    List<Product> productList = productService.getAllProducts();
+
+	    if (name != null && !name.isBlank()) {
+	        productList = productList.stream()
+	            .filter(p -> p.getName() != null &&
+	                p.getName().toLowerCase()
+	                    .contains(name.trim().toLowerCase()))
+	            .toList();
+	    }
+
+	    if (minPrice != null) {
+	        productList = productList.stream()
+	            .filter(p -> p.getPrice() >= minPrice)
+	            .toList();
+	    }
+
+	    if (maxPrice != null) {
+	        productList = productList.stream()
+	            .filter(p -> p.getPrice() <= maxPrice)
+	            .toList();
+	    }
+
+	    model.addAttribute("productList", productList);
+	    model.addAttribute("name", name);
+	    model.addAttribute("minPrice", minPrice);
+	    model.addAttribute("maxPrice", maxPrice);
+
+	    return "productos";
 	}
 	
 	@GetMapping("/add")
@@ -52,8 +80,6 @@ public class ProductController {
 			model.addAttribute("product", product.get());
 			model.addAttribute("editMode", true);
 		}
-		// NOTE: Se podría manejar el caso null informando de que el producto no 
-		// existe y dando el formulario para crear objeto nuevo por defecto
 		
 		return "formulario-productos";
 	}	
@@ -72,7 +98,6 @@ public class ProductController {
 		Optional<Product> product = productService.getProductById(id);
 		
 		if (product.isPresent()) productService.deleteProduct(product.get());
-		// NOTE: Se podría imprimir un mensaje de fallo al intentar encontrar el dato
 		
 		return "redirect:/admin";
 	}

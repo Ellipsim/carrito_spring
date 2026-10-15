@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.carrito.models.CartItem;
 import com.carrito.models.Product;
 import com.carrito.services.CartService;
 import com.carrito.services.ProductService;
@@ -40,13 +41,16 @@ public class CartController {
 	        }
 	    }	
 		
-		List<Product> cart = new ArrayList<>(cartService.getProducts());
-		
-		cart.sort(Comparator.comparing(Product::getName));
-		
-		
-		
+	    List<CartItem> cart = cartService.getCartItems();
+
+	    double total = cart.stream()
+	            .mapToDouble(item ->
+	                    item.getProduct().getPrice() * item.getQuantity())
+	            .sum();
+
+	    model.addAttribute("total", total);		
 		model.addAttribute("cart", cart);
+		
 		return "cart";
 	}
 	
