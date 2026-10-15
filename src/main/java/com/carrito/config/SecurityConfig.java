@@ -17,60 +17,69 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
 
         http
-            .authorizeHttpRequests(auth -> auth 
-            	.requestMatchers("/", "/index", "/cart/**").permitAll()
-                .requestMatchers("/css/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/products").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+            .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                	"/products/add", 
-                	"/products/edit/**", 
-                	"/products/save", 
-                	"/products/delete/**"
+                    "/login", "/error",
+                    "/", "/index", "/index.html", "/.well-known/appspecific/**",
+                    "/css/**", "/js/**", "/images/**",
+                    "/webjars/**"
+                ).permitAll()
+                .requestMatchers("/api/**", "/cart/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/products", "/products/**")
+                    .permitAll()
+                .requestMatchers(
+                    "/products/add",
+                    "/products/edit/**",
+                    "/products/save",
+                    "/products/delete/**",
+                    "/admin/**"
                 ).hasRole("ADMIN")
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .anyRequest().authenticated()
             )
-            
             .csrf(csrf -> csrf
-                    .ignoringRequestMatchers("/h2-console/**")
-                )
-            
+                .ignoringRequestMatchers("/h2-console/**")
+            )
             .headers(headers -> headers
-                    .frameOptions(frame -> frame.sameOrigin())
-                )
-
+                .frameOptions(frame -> frame.sameOrigin())
+            )
             .formLogin(form -> form
                 .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .failureUrl("/login?error=true")
                 .defaultSuccessUrl("/products", false)
                 .permitAll()
             )
-
+            .requestCache(cache -> cache
+                .requestCache(
+                    new org.springframework.security.web.savedrequest
+                        .HttpSessionRequestCache()
+                )
+            )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/")
+                .permitAll()
             );
 
         return http.build();
     }
-    
+
     @Bean
     public UserDetailsService users() {
+        UserDetails user = User.withUsername("user")
+            .password("{noop}1234")
+            .roles("USER")
+            .build();
 
-        UserDetails user = User
-                .withUsername("user")
-                .password("{noop}1234")
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User
-                .withUsername("admin")
-                .password("{noop}admin")
-                .roles("ADMIN")
-                .build();
+        UserDetails admin = User.withUsername("admin")
+            .password("{noop}admin")
+            .roles("ADMIN")
+            .build();
 
         return new InMemoryUserDetailsManager(user, admin);
     }
