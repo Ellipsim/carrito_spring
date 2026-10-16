@@ -2,6 +2,8 @@
 
 Aplicación web desarrollada con Spring Boot para gestionar un catálogo de productos y un carrito de la compra. Incluye funcionalidades de consulta y edición de productos, gestión del carrito, administración y control de acceso mediante autenticación y autorización.
 
+Github: https://github.com/Ellipsim/carrito_spring
+
 ## Estructura del proyecto
 
 El código Java se encuentra en `src/main/java` y contiene los componentes responsables de procesar las peticiones, aplicar las reglas de negocio y gestionar los datos. Las vistas HTML se encuentran en `src/main/resources/templates`, mientras que los recursos estáticos, como hojas de estilo y archivos JavaScript, se ubican en `src/main/resources/static`. La configuración general de la aplicación se define en los archivos de configuración de Spring Boot. Las pruebas automatizadas se organizan en `src/test`.
