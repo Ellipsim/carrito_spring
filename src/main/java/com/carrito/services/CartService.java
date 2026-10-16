@@ -8,14 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.carrito.models.CartItem;
 import com.carrito.models.Product;
-import com.carrito.repositories.CartItemRepository;
+import com.carrito.repositories.CartItemRepo;
 
 @Service
 public class CartService {
 
-    private final CartItemRepository repository;
+    private final CartItemRepo repository;
 
-    public CartService(CartItemRepository repository) {
+    public CartService(CartItemRepo repository) {
         this.repository = repository;
     }
 
